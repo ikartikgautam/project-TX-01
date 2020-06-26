@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "752292719316",
+    "firebase_url": "https://musestar-2631d.firebaseio.com",
+    "project_id": "musestar-2631d",
+    "storage_bucket": "musestar-2631d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:752292719316:android:89acd050475f6381cd6941",
+        "android_client_info": {
+          "package_name": "com.example.musestar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "752292719316-rajs8jm9mderhkdvvv4eldvlt2090ofv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC57dvRszakh4pQ9OakYn7I00Qm7chUiOk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "752292719316-rajs8jm9mderhkdvvv4eldvlt2090ofv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
