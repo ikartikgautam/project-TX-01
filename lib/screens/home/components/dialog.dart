@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:musestar/screens/home/home.dart';
+import 'package:musestar/screens/home/menus/camera.dart';
 
 class BottomDialog extends StatefulWidget {
   @override
@@ -6,23 +8,49 @@ class BottomDialog extends StatefulWidget {
 }
 
 class _BottomDialogState extends State<BottomDialog> {
+  double _height = 200;
+  Widget _modalIcon = Icon(Icons.expand_less, color: Colors.white);
+
   @override
   Widget build(BuildContext context) {
-    return Container(
+    double deviceWidth = MediaQuery.of(context).size.height;
+
+    changeHeight() {
+      setState(() {
+        _height = deviceWidth;
+        _modalIcon = Icon(
+          Icons.expand_more,
+          color: Colors.white,
+        );
+      });
+    }
+
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 100),
+      curve: Curves.bounceOut,
       decoration: BoxDecoration(
           color: Colors.black,
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(24), topRight: Radius.circular(24))),
-      height: 400,
+      height: _height,
       child: Column(
         children: <Widget>[
-          Container(
-            width: double.infinity,
-            height: 40,
-            child: Center(child: Text('What is in your mind ?')),
-            margin: EdgeInsets.all(24),
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24), color: Colors.white),
+          SizedBox(height: 6),
+          IconButton(
+              padding: EdgeInsets.all(0), icon: _modalIcon, onPressed: null),
+          GestureDetector(
+            onTap: () {
+              print('Clicked');
+              changeHeight();
+            },
+            child: Container(
+              width: double.infinity,
+              height: 40,
+              child: Center(child: Text('What is in your mind ?')),
+              margin: EdgeInsets.fromLTRB(24, 0, 24, 12),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24), color: Colors.white),
+            ),
           ),
           Container(
               margin: EdgeInsets.fromLTRB(24, 6, 24, 0),
@@ -46,7 +74,10 @@ class _BottomDialogState extends State<BottomDialog> {
                                 color: Colors.white,
                               ),
                               onPressed: () {
-                                Navigator.of(context).pop();
+                                Navigator.push(
+                                    context,
+                                    new MaterialPageRoute(
+                                        builder: (context) => Camera()));
                               }))),
                   Expanded(
                       child: Container(

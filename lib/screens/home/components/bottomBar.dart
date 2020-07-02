@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:musestar/screens/home/components/dialog.dart';
 
 class Bottombar extends StatefulWidget {
+  final Function changeView;
 
-final Function changeView;
-
-Bottombar({this.changeView});
+  Bottombar({this.changeView});
 
   @override
   _BottombarState createState() => _BottombarState();
@@ -81,6 +80,7 @@ class _BottombarState extends State<Bottombar> {
   void _openDialog(context) {
     print(context);
     showModalBottomSheet(
+        isScrollControlled: true,
         context: context,
         builder: (BuildContext bc) {
           return BottomDialog();
