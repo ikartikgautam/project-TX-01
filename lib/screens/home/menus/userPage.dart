@@ -9,6 +9,7 @@ class _UserPageState extends State<UserPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      color: Colors.white,
       child: Text('USER PAGE'),     
     );
   }
