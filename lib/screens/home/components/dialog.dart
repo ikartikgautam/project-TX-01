@@ -10,6 +10,7 @@ class BottomDialog extends StatefulWidget {
 class _BottomDialogState extends State<BottomDialog> {
   double _height = 200;
   Widget _modalIcon = Icon(Icons.expand_less, color: Colors.white);
+  bool _state = false;
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +18,7 @@ class _BottomDialogState extends State<BottomDialog> {
 
     changeHeight() {
       setState(() {
+        _state = true;
         _height = deviceWidth;
         _modalIcon = Icon(
           Icons.expand_more,
@@ -37,7 +39,15 @@ class _BottomDialogState extends State<BottomDialog> {
         children: <Widget>[
           SizedBox(height: 6),
           IconButton(
-              padding: EdgeInsets.all(0), icon: _modalIcon, onPressed: null),
+              padding: EdgeInsets.all(0),
+              icon: _modalIcon,
+              onPressed: () {
+                if (_state == false) {
+                  changeHeight();
+                } else {
+                  Navigator.pop(context);
+                }
+              }),
           GestureDetector(
             onTap: () {
               print('Clicked');
