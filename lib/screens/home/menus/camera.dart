@@ -1,5 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:musestar/services/camCorder.dart';
 import 'package:path/path.dart';
 
 class Camera extends StatefulWidget {
@@ -8,7 +9,11 @@ class Camera extends StatefulWidget {
   _CameraState createState() => _CameraState();
 }
 
+final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
 class _CameraState extends State<Camera> {
+
+  CamCordService _cam = CamCordService();
   CameraController _controller;
   Future<void> _controllerInializer;
 
@@ -42,6 +47,7 @@ class _CameraState extends State<Camera> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           return Scaffold(
+            key: _scaffoldKey,
             body: SafeArea(
                 child: Stack(
               children: <Widget>[
@@ -72,12 +78,32 @@ class _CameraState extends State<Camera> {
                       children: <Widget>[
                         Expanded(
                           child: IconButton(
-                            icon: Icon(Icons.lens, size: 60),
-                            onPressed: () {},
-                            color: Colors.white,
+                              icon: Icon(Icons.ac_unit), onPressed: null),
+                        ),
+                        Expanded(
+                          child: GestureDetector(
+                            // onLongPress: () {
+                            //   _cam.StartRecord(_controller,_scaffoldKey);
+                            // },
+                            // onLongPressUp: () {
+                            //   _cam.PauseRecord(_controller,_scaffoldKey);
+                            // },
+                            child: IconButton(
+                              icon: Icon(Icons.lens, size: 60),
+                              onPressed: () {
+                                _cam.StartRecord(_controller,_scaffoldKey);
+                              },
+                              color: Colors.white,
+                            ),
                           ),
                         ),
-                        SizedBox(height: 12)
+                        Expanded(
+                          child: IconButton(
+                              icon: Icon(Icons.done),
+                              onPressed: () {
+                                _cam.StopRecord(_controller,_scaffoldKey);
+                              }),
+                        ),
                       ],
                     ),
                   ),
