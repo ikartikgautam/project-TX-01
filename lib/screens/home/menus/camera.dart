@@ -41,6 +41,7 @@ class _CameraState extends State<Camera> {
   @override
   Widget build(BuildContext context) {
     double deviceWidth = MediaQuery.of(context).size.width;
+    CameraService _camS = CameraService();
     return FutureBuilder(
       future: _controllerInializer,
       builder: (context, snapshot) {
@@ -81,7 +82,9 @@ class _CameraState extends State<Camera> {
                         ),
                         Expanded(
                           child: GestureDetector(
-                            onLongPress: () {},
+                            onLongPress: () {
+                              _camS.showSnackBar(_scaffoldKey,'Recording Started');
+                            },
                             onLongPressUp: () {
                               Navigator.push(
                                   context,
@@ -114,5 +117,19 @@ class _CameraState extends State<Camera> {
         }
       },
     );
+  }
+}
+
+class CameraService {
+  showSnackBar(_key,_msg) {
+    print('Show SnackBar');
+    final snackBar = new SnackBar(
+      content: Text(
+        _msg,
+        style: TextStyle(color: Colors.black),
+      ),
+      backgroundColor: Colors.white,
+    );
+    _key.currentState.showSnackBar(snackBar);
   }
 }
