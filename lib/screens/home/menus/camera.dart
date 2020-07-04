@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:musestar/services/camCorder.dart';
+import 'package:musestar/screens/home/menus/preview.dart';
 import 'package:path/path.dart';
 
 class Camera extends StatefulWidget {
@@ -12,8 +13,6 @@ class Camera extends StatefulWidget {
 final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
 class _CameraState extends State<Camera> {
-
-  CamCordService _cam = CamCordService();
   CameraController _controller;
   Future<void> _controllerInializer;
 
@@ -82,27 +81,23 @@ class _CameraState extends State<Camera> {
                         ),
                         Expanded(
                           child: GestureDetector(
-                            // onLongPress: () {
-                            //   _cam.StartRecord(_controller,_scaffoldKey);
-                            // },
-                            // onLongPressUp: () {
-                            //   _cam.PauseRecord(_controller,_scaffoldKey);
-                            // },
+                            onLongPress: () {},
+                            onLongPressUp: () {
+                              Navigator.push(
+                                  context,
+                                  new CupertinoPageRoute(
+                                      builder: (context) => Preview()));
+                            },
                             child: IconButton(
                               icon: Icon(Icons.lens, size: 60),
-                              onPressed: () {
-                                _cam.StartRecord(_controller,_scaffoldKey);
-                              },
+                              onPressed: () {},
                               color: Colors.white,
                             ),
                           ),
                         ),
                         Expanded(
                           child: IconButton(
-                              icon: Icon(Icons.done),
-                              onPressed: () {
-                                _cam.StopRecord(_controller,_scaffoldKey);
-                              }),
+                              icon: Icon(Icons.done), onPressed: () {}),
                         ),
                       ],
                     ),

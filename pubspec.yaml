@@ -21,6 +21,7 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
+  gallery_saver: ^2.0.1
   logger: ^0.7.0+2
   video_player: ^0.10.11+2
   camera:
