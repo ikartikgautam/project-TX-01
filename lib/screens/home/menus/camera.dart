@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:musestar/screens/home/menus/preview.dart';
 import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 
 class Camera extends StatefulWidget {
   // Camera({key:key}):
@@ -11,6 +14,8 @@ class Camera extends StatefulWidget {
 }
 
 final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+String videoPath;
+bool pauseFlag = false;
 
 class _CameraState extends State<Camera> {
   CameraController _controller;
@@ -76,31 +81,58 @@ class _CameraState extends State<Camera> {
                     height: 100,
                     child: Row(
                       children: <Widget>[
+                        // This is a null Button right now
                         Expanded(
                           child: IconButton(
-                              icon: Icon(Icons.ac_unit), onPressed: null),
+                              icon: Icon(Icons.ac_unit, color: Colors.white),
+                              onPressed: () {}),
                         ),
+                        // This is Recording Button to start/Pause Recording
                         Expanded(
                           child: GestureDetector(
                             onLongPress: () {
-                              _camS.showSnackBar(_scaffoldKey,'Recording Started');
+                              // Implement play recording
+                              _controller != null &&
+                                      _controller.value.isInitialized
+                                  ? _camS.startRec(_scaffoldKey, _controller)
+                                  : null;
+                              // _camS.showSnackBar(
+                              //     _scaffoldKey, 'Recording Started');
                             },
                             onLongPressUp: () {
-                              Navigator.push(
-                                  context,
-                                  new CupertinoPageRoute(
-                                      builder: (context) => Preview()));
+                              // Implement pause recording
+                              _controller != null &&
+                                      _controller.value.isInitialized &&
+                                      _controller.value.isRecordingVideo
+                                  ? _camS.pauseRec(_scaffoldKey, _controller)
+                                  : null;
                             },
                             child: IconButton(
                               icon: Icon(Icons.lens, size: 60),
-                              onPressed: () {},
+                              onPressed: () {
+                                _camS.showSnackBar(_scaffoldKey,
+                                    'Long Press the record button to start recording');
+                              },
                               color: Colors.white,
                             ),
                           ),
                         ),
+                        // This is a stop recording button
                         Expanded(
                           child: IconButton(
-                              icon: Icon(Icons.done), onPressed: () {}),
+                              icon: Icon(
+                                Icons.done,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {
+                                // implement stop record and show preview
+                                _camS.stopRec(_scaffoldKey, _controller);
+                                Navigator.push(
+                                    context,
+                                    new CupertinoPageRoute(
+                                        builder: (context) => VideoPlayerScreen(
+                                            path: videoPath)));
+                              }),
                         ),
                       ],
                     ),
@@ -121,7 +153,8 @@ class _CameraState extends State<Camera> {
 }
 
 class CameraService {
-  showSnackBar(_key,_msg) {
+// show snackbar
+  showSnackBar(_key, _msg) {
     print('Show SnackBar');
     final snackBar = new SnackBar(
       content: Text(
@@ -131,5 +164,108 @@ class CameraService {
       backgroundColor: Colors.white,
     );
     _key.currentState.showSnackBar(snackBar);
+  }
+
+  // start Reccording
+  startRec(_key, controller) {
+    print(pauseFlag);
+    if (pauseFlag == false) {
+      pauseFlag = true;
+      _startVideoRecording(_key, controller).then((String filePath) {
+        if (filePath != null) {
+          showSnackBar(_key, 'Recording Started');
+        }
+      });
+    } else {
+      // print(controller.value);
+      // controller.resumeVideoRecording();
+      // showSnackBar(_key, 'Resumed');
+      _resumeVideoRecording(_key, controller).then((value) => {
+            if (value != null) {showSnackBar(_key, 'Resumed Video')}
+          });
+    }
+  }
+
+  // stop Recording
+  void stopRec(_key, controller) {
+    _stopVideoRecording(_key, controller).then((_) {
+      showSnackBar(_key, 'Video recording saved to  $videoPath');
+    });
+  }
+
+  void pauseRec(_key, controller) {
+    _pauseVideoRecording(_key, controller).then((_) {
+      showSnackBar(_key, 'Paused Video');
+    });
+  }
+
+  // functions
+  Future<String> _startVideoRecording(_key, controller) async {
+    if (!controller.value.isInitialized) {
+      showSnackBar(_key, 'Please Wait');
+      return null;
+    }
+    if (controller.value.isRecordingVideo) {
+      showSnackBar(_key, 'Already Recording');
+      return null;
+    }
+
+    final Directory appDirectory = await getExternalStorageDirectory();
+    final String videoDirectory = '${appDirectory.path}/Videos';
+    await Directory(videoDirectory).create(recursive: true);
+    final String currentTime = DateTime.now().millisecondsSinceEpoch.toString();
+    final String filePath = '${videoDirectory}/${currentTime}.mp4';
+
+    try {
+      await controller.startVideoRecording(filePath);
+      videoPath = filePath;
+    } on CameraException catch (e) {
+      showSnackBar(_key, e);
+      return null;
+    }
+    return filePath;
+
+    // await controller.resumeVideoRecording();
+    // showSnackBar(_key, 'Resumed');
+  }
+
+  Future<String> _stopVideoRecording(_key, controller) async {
+    if (!controller.value.isRecordingVideo) {
+      showSnackBar(_key, 'Not Recording Yet');
+      return null;
+    }
+    try {
+      await controller.stopVideoRecording();
+      pauseFlag = false;
+    } on CameraException catch (e) {
+      showSnackBar(_key, e);
+      return null;
+    }
+  }
+
+  Future<String> _resumeVideoRecording(_key, controller) async {
+    if (controller.value.isRecordingVideo) {
+      try {
+        controller.resumeVideoRecording();
+      } on CameraException catch (e) {
+        showSnackBar(_key, e);
+        return null;
+      }
+    } else {
+      return null;
+    }
+    return 'Works';
+  }
+
+  Future<String> _pauseVideoRecording(_key, controller) async {
+    if (!controller.value.isRecordingVideo) {
+      return null;
+    }
+    try {
+      await controller.pauseVideoRecording();
+    } on CameraException catch (e) {
+      showSnackBar(_key, e);
+      return null;
+    }
   }
 }
