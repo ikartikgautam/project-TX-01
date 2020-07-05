@@ -22,9 +22,11 @@
 // }
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() => runApp(VideoPlayerScreen());
 
@@ -41,14 +43,18 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   VideoPlayerController _controller;
   Future<void> _initializeVideoPlayerFuture;
 
+  // final Directory directory = await getApplicationDocumentsDirectory();
+  // File file = File('${widget.path}');
+
   @override
   void initState() {
     // Create and store the VideoPlayerController. The VideoPlayerController
     // offers several different constructors to play videos from assets, files,
     // or the internet.
-    _controller = VideoPlayerController.asset(
-      widget.path
-    );
+    File file = File('${widget.path}');
+    _controller = VideoPlayerController.file(
+        // widget.path
+        file);
 
     // Initialize the controller and store the Future for later use.
     _initializeVideoPlayerFuture = _controller.initialize();
@@ -70,9 +76,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Butterfly Video'),
-      ),
       // Use a FutureBuilder to display a loading spinner while waiting for the
       // VideoPlayerController to finish initializing.
       body: FutureBuilder(
