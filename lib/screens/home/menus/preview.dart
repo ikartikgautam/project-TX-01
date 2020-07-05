@@ -1,37 +1,16 @@
-// import 'package:flutter/material.dart';
-
-// class Preview extends StatefulWidget {
-//   final String path;
-
-//   Preview({this.path});
-
-//   @override
-//   _PreviewState createState() => _PreviewState();
-// }
-
-// class _PreviewState extends State<Preview> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: Colors.white,
-//       body: Center(
-//         child: Text('PREVIEW of '+widget.path),
-//       ),
-//     );
-//   }
-// }
-
 import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
+
+final FlutterFFmpeg _flutterFFmpeg = new FlutterFFmpeg();
 
 void main() => runApp(VideoPlayerScreen());
 
 class VideoPlayerScreen extends StatefulWidget {
-  // VideoPlayerScreen({Key key}) : super(key: key);
   final String path;
   VideoPlayerScreen({this.path});
 
@@ -43,24 +22,25 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   VideoPlayerController _controller;
   Future<void> _initializeVideoPlayerFuture;
 
-  // final Directory directory = await getApplicationDocumentsDirectory();
-  // File file = File('${widget.path}');
-
   @override
   void initState() {
-    // Create and store the VideoPlayerController. The VideoPlayerController
-    // offers several different constructors to play videos from assets, files,
-    // or the internet.
     File file = File('${widget.path}');
-    _controller = VideoPlayerController.file(
-        // widget.path
-        file);
+    _controller = VideoPlayerController.file(file);
 
     // Initialize the controller and store the Future for later use.
     _initializeVideoPlayerFuture = _controller.initialize();
 
     // Use the controller to loop the video.
     _controller.setLooping(true);
+    print(widget.path);
+    // FFmpeg code
+    var arguments = [
+      "-i",
+      "${widget.path}",
+      "/storage/emulated/0/Android/data/com.example.musestar/files/Videos/file2.aac"
+    ];
+    _flutterFFmpeg.executeWithArguments(arguments).then((rc) => print(
+        "===========================================================================================> FFmpeg process exited with rc $rc"));
 
     super.initState();
   }
