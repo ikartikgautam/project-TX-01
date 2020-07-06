@@ -1,11 +1,12 @@
+import 'dart:async';
 import 'dart:io';
-
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:musestar/screens/home/menus/preview.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class Camera extends StatefulWidget {
   // Camera({key:key}):
@@ -16,6 +17,11 @@ class Camera extends StatefulWidget {
 final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 String videoPath;
 bool pauseFlag = false;
+Timer _timer;
+int _start = 20;
+Color shutterColor = Colors.white;
+
+void pauseTimer() {}
 
 class _CameraState extends State<Camera> {
   CameraController _controller;
@@ -57,6 +63,16 @@ class _CameraState extends State<Camera> {
                 child: Stack(
               children: <Widget>[
                 CameraPreview(_controller),
+                // Top Progress Bar of recording
+                Positioned(
+                    top: 0,
+                    child: AnimatedContainer(
+                      height: 8,
+                      duration: Duration(milliseconds: 1000),
+                      width: ((20 - _start) / 20) * deviceWidth,
+                      color: Colors.red,
+                    )),
+                // Other UI elements of camera
                 Positioned(
                   child: IconButton(
                       icon: Icon(Icons.arrow_back),
@@ -71,14 +87,18 @@ class _CameraState extends State<Camera> {
                   child: IconButton(
                       icon: Icon(Icons.camera_front),
                       color: Colors.white,
-                      onPressed: () {}),
+                      onPressed: () {
+                        setState(() {
+                          getCamera().then((camera) => {});
+                        });
+                      }),
                   top: 0,
                   right: 0,
                 ),
                 Positioned(
                   child: Container(
                     width: deviceWidth,
-                    height: 100,
+                    height: 120,
                     child: Row(
                       children: <Widget>[
                         // This is a null Button right now
@@ -96,11 +116,25 @@ class _CameraState extends State<Camera> {
                                       _controller.value.isInitialized
                                   ? _camS.startRec(_scaffoldKey, _controller)
                                   : null;
-                              // _camS.showSnackBar(
-                              //     _scaffoldKey, 'Recording Started');
+
+                              const oneSec = const Duration(seconds: 1);
+                              _timer =
+                                  new Timer.periodic(oneSec, (Timer timer) {
+                                print(_start);
+                                setState(() {
+                                  _start = _start - 1;
+                                });
+                              });
+                              setState(() {
+                                shutterColor = Colors.grey;
+                              });
                             },
                             onLongPressUp: () {
                               // Implement pause recording
+                              setState(() {
+                                shutterColor = Colors.white;
+                              });
+
                               _controller != null &&
                                       _controller.value.isInitialized &&
                                       _controller.value.isRecordingVideo
@@ -108,12 +142,12 @@ class _CameraState extends State<Camera> {
                                   : null;
                             },
                             child: IconButton(
-                              icon: Icon(Icons.lens, size: 60),
+                              icon: Icon(Icons.lens, size: 70),
                               onPressed: () {
                                 _camS.showSnackBar(_scaffoldKey,
                                     'Long Press the record button to start recording');
                               },
-                              color: Colors.white,
+                              color: shutterColor,
                             ),
                           ),
                         ),
@@ -153,17 +187,11 @@ class _CameraState extends State<Camera> {
 }
 
 class CameraService {
-// show snackbar
+  _CameraState camState = _CameraState();
+// show snackbar/Toast (NEWER VERSIONS SHOW TOAST)
   showSnackBar(_key, _msg) {
-    print('Show SnackBar');
-    final snackBar = new SnackBar(
-      content: Text(
-        _msg,
-        style: TextStyle(color: Colors.black),
-      ),
-      backgroundColor: Colors.white,
-    );
-    _key.currentState.showSnackBar(snackBar);
+    FlutterToast.showToast(
+        msg: _msg, toastLength: Toast.LENGTH_SHORT, gravity: ToastGravity.TOP);
   }
 
   // start Reccording
@@ -236,6 +264,7 @@ class CameraService {
     }
     try {
       await controller.stopVideoRecording();
+      _timer.cancel();
       pauseFlag = false;
     } on CameraException catch (e) {
       showSnackBar(_key, e);
@@ -263,6 +292,7 @@ class CameraService {
     }
     try {
       await controller.pauseVideoRecording();
+      _timer.cancel();
     } on CameraException catch (e) {
       showSnackBar(_key, e);
       return null;
